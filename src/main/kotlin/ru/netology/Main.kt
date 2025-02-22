@@ -7,6 +7,7 @@ data class Message(
     var isRead: Boolean = false,
     var isDeleted: Boolean = false
 )
+
 data class Chat(
     val id: Int = 0,
     val user1Id: Int,
