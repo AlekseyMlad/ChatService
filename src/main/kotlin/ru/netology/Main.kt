@@ -40,6 +40,7 @@ object ChatService {
         .filter { (it.user1Id == userId || it.user2Id == userId) && !it.isDeleted }
         .toList()
 
+
     fun getUnreadChatsCount(): Int = chats.values.asSequence()
         .filter { chat -> chat.messages.any { !it.isRead } }
         .count()
