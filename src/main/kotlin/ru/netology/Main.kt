@@ -2,6 +2,7 @@ package ru.netology
 
 data class Message(
     val id: Int = 0,
+    val senderId: Int,
     val text: String,
     var isRead: Boolean = false,
     var isDeleted: Boolean = false
@@ -39,10 +40,13 @@ object ChatService {
 
     fun getUnreadChatsCount(): Int = chats.values.count { chat -> chat.messages.any { !it.isRead } }
 
-    fun createMessage(chatId: Int, senderId: Int, text: String): Message {
-        chats[chatId]?.takeUnless { it.isDeleted } ?: throw ChatNotFoundException("Чат не найден или удален")
-        val newMessage = Message(id = nextMessageId, text = text)
-        return newMessage.also { addMessage(chatId, it) }
+    fun addMessage(chatId: Int, senderId: Int, text: String) {
+        val chat = chats.getOrPut(chatId) {
+            val newChat = Chat(id = nextChatId++, user1Id = senderId, user2Id = senderId)
+            newChat
+        }
+        val newMessage = Message(id = nextMessageId++, senderId = senderId, text = text)
+        chat.messages.add(newMessage)
     }
 
     fun editMessage(chatId: Int, messageId: Int, newText: String): Boolean {
@@ -65,10 +69,7 @@ object ChatService {
         val chat = chats[chatId] ?: throw ChatNotFoundException("Чат не найден")
         return chat.messages.takeLast(count).onEach { it.isRead = true }
     }
-    fun addMessage(chatId: Int, message: Message) {
-        val chat = chats[chatId] ?: throw ChatNotFoundException("Чат не найден")
-        chat.messages += message
-    }
+
     fun clear() {
         chats.clear()
         nextChatId = 1
@@ -83,59 +84,25 @@ fun main() {
     val chatId1 = ChatService.createChat(1, 2)
     println("Создан чат с ID: $chatId1")
 
-    val chatId2 = ChatService.createChat(1, 2)
-    println("Создан чат с ID: $chatId2")
-
-    val message1 = ChatService.createMessage(chatId2, 1, "Привет!")
-    println("Сообщение отправлено: $message1")
-
-    try {
-        ChatService.editMessage(chatId2, message1.id, "Привет! Как дела?")
-        println("Сообщение ${message1.id} успешно отредактировано")
-    } catch (e: ChatNotFoundException) {
-        println("Ошибка при редактировании сообщения: ${e.message}")
-    }
-
-    try {
-        ChatService.editMessage(chatId2, message1.id, "Привет! Как дела?")
-        println("Сообщение ${message1.id} успешно отредактировано")
-    } catch (e: MessageNotFoundException) {
-        println("Ошибка при редактировании сообщения: ${e.message}")
-    }
+    ChatService.addMessage(chatId1, 1, "Привет!")
 
     val userChats = ChatService.getChats(1)
     println("Список чатов для пользователя 1: $userChats")
 
-    try {
-        ChatService.deleteMessage(chatId2, message1.id)
-        println("Сообщение ${message1.id} успешно удалено")
-    } catch (e: ChatNotFoundException) {
-        println("Ошибка при удалении сообщения: ${e.message}")
-    }
+    val messageId = ChatService.chats[chatId1]!!.messages[0].id // Берем ID первого сообщения
+    ChatService.editMessage(chatId1, messageId, "Привет! Как дела?")
+
+    val chatMessages = ChatService.getMessagesFromChat(chatId1, 10)
+    println("Сообщения из чата $chatId1: $chatMessages")
+
+    val unreadCount = ChatService.getUnreadChatsCount()
+    println("Количество непрочитанных чатов: $unreadCount")
 
     val lastMessages = ChatService.getLastMessagesFromChats()
     println("Последние сообщения из всех чатов: $lastMessages")
 
-    try {
-        val chatId3 = ChatService.createChat(1,3)
-        val message1 = ChatService.createMessage(chatId3, 1, "Test1")
-        val message2 = ChatService.createMessage(chatId3, 2, "Test2")
-        val chatMessages = ChatService.getMessagesFromChat(chatId3, 10)
-        println("Сообщения из чата: $chatMessages")
+    ChatService.deleteMessage(chatId1, messageId)
 
-        val unreadCount = ChatService.getUnreadChatsCount()
-        println("Количество непрочитанных чатов: $unreadCount")
-        ChatService.deleteChat(chatId3)
-    } catch (e: ChatNotFoundException) {
-        println("Ошибка при получении сообщений: ${e.message}")
-    }
-    println("Последние сообщения из всех чатов: ${ChatService.getLastMessagesFromChats()}")
-
-    try {
-        ChatService.deleteChat(chatId1)
-        println("Чат $chatId1 успешно удален")
-    } catch (e: ChatNotFoundException) {
-        println("Ошибка при удалении чата: ${e.message}")
-    }
-
+    ChatService.deleteChat(chatId1)
+    println("Чат $chatId1 удален")
 }
