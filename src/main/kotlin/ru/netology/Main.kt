@@ -79,27 +79,23 @@ object ChatService {
 
 
 fun main() {
-    // Создание чата
+
     val chatId1 = ChatService.createChat(1, 2)
     println("Создан чат с ID: $chatId1")
 
-
-    // Создание чата заново
     val chatId2 = ChatService.createChat(1, 2)
     println("Создан чат с ID: $chatId2")
 
-    // Создание сообщения
     val message1 = ChatService.createMessage(chatId2, 1, "Привет!")
     println("Сообщение отправлено: $message1")
 
-    // Редактирование сообщения
     try {
         ChatService.editMessage(chatId2, message1.id, "Привет! Как дела?")
         println("Сообщение ${message1.id} успешно отредактировано")
     } catch (e: ChatNotFoundException) {
         println("Ошибка при редактировании сообщения: ${e.message}")
     }
-    // Редактирование сообщения
+
     try {
         ChatService.editMessage(chatId2, message1.id, "Привет! Как дела?")
         println("Сообщение ${message1.id} успешно отредактировано")
@@ -107,24 +103,19 @@ fun main() {
         println("Ошибка при редактировании сообщения: ${e.message}")
     }
 
-
-    // Получение списка чатов для пользователя
     val userChats = ChatService.getChats(1)
     println("Список чатов для пользователя 1: $userChats")
 
-
-    // Удаление сообщения
     try {
         ChatService.deleteMessage(chatId2, message1.id)
         println("Сообщение ${message1.id} успешно удалено")
     } catch (e: ChatNotFoundException) {
         println("Ошибка при удалении сообщения: ${e.message}")
     }
-    // Получение списка последних сообщений
+
     val lastMessages = ChatService.getLastMessagesFromChats()
     println("Последние сообщения из всех чатов: $lastMessages")
 
-    // Получение списка сообщений из чата
     try {
         val chatId3 = ChatService.createChat(1,3)
         val message1 = ChatService.createMessage(chatId3, 1, "Test1")
@@ -132,7 +123,6 @@ fun main() {
         val chatMessages = ChatService.getMessagesFromChat(chatId3, 10)
         println("Сообщения из чата: $chatMessages")
 
-        // Получение количества непрочитанных чатов
         val unreadCount = ChatService.getUnreadChatsCount()
         println("Количество непрочитанных чатов: $unreadCount")
         ChatService.deleteChat(chatId3)
@@ -141,7 +131,6 @@ fun main() {
     }
     println("Последние сообщения из всех чатов: ${ChatService.getLastMessagesFromChats()}")
 
-    // Удаление чата
     try {
         ChatService.deleteChat(chatId1)
         println("Чат $chatId1 успешно удален")
