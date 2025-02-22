@@ -36,9 +36,13 @@ object ChatService {
         return true
     }
 
-    fun getChats(userId: Int): List<Chat> = chats.values.filter { (it.user1Id == userId || it.user2Id == userId) && !it.isDeleted }
+    fun getChats(userId: Int): List<Chat> = chats.values.asSequence()
+        .filter { (it.user1Id == userId || it.user2Id == userId) && !it.isDeleted }
+        .toList()
 
-    fun getUnreadChatsCount(): Int = chats.values.count { chat -> chat.messages.any { !it.isRead } }
+    fun getUnreadChatsCount(): Int = chats.values.asSequence()
+        .filter { chat -> chat.messages.any { !it.isRead } }
+        .count()
 
     fun addMessage(chatId: Int, senderId: Int, text: String) {
         val chat = chats.getOrPut(chatId) {
@@ -63,7 +67,9 @@ object ChatService {
         return true
     }
 
-    fun getLastMessagesFromChats(): List<String> = chats.values.map { chat -> chat.messages.lastOrNull()?.text ?: "нет сообщений" }
+    fun getLastMessagesFromChats(): List<String> = chats.values.asSequence()
+        .map { chat -> chat.messages.lastOrNull()?.text ?: "нет сообщений" }
+        .toList()
 
     fun getMessagesFromChat(chatId: Int, count: Int): List<Message> {
         val chat = chats[chatId] ?: throw ChatNotFoundException("Чат не найден")
