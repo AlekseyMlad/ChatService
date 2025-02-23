@@ -92,6 +92,7 @@ fun main() {
     println("Создан чат с ID: $chatId1")
 
     ChatService.addMessage(chatId1, 1, "Привет!")
+    ChatService.addMessage(chatId1, 1, "Привет!")
 
     val userChats = ChatService.getChats(1)
     println("Список чатов для пользователя 1: $userChats")
